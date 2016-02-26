@@ -47,6 +47,7 @@ class UploadHandler
             'upload_dir' => dirname($this->get_server_var('SCRIPT_FILENAME')).'/files/',
             'upload_url' => $this->get_full_url().'/files/',
             'user_dirs' => false,
+            'clean_url' => false,
             'mkdir_mode' => 0755,
             'param_name' => 'files',
             // Set the following option to 'POST', if your server does not support
@@ -261,10 +262,15 @@ class UploadHandler
     }
 
     protected function set_additional_file_properties($file) {
-        $file->deleteUrl = $this->options['script_url']
-            .$this->get_query_separator($this->options['script_url'])
-            .$this->get_singular_param_name()
-            .'='.rawurlencode($file->name);
+        $file->deleteUrl = $this->options['script_url'];
+        if($this->options['clean_url']){
+            $file->deleteUrl .= '/';
+        } else {
+            $file->deleteUrl .= $this->get_query_separator($this->options['script_url'])
+                . $this->get_singular_param_name();
+                . '=';
+        }
+            $file->deleteUrl .= rawurlencode($file->name);
         $file->deleteType = $this->options['delete_type'];
         if ($file->deleteType !== 'DELETE') {
             $file->deleteUrl .= '&_method=DELETE';
